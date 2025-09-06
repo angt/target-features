@@ -46,15 +46,14 @@ main(int argc, char *argv[])
     sigaction(SIGILL, &sa, NULL);
 
     const struct {
-        const char *name;
         const char *target;
         void (*fn)(void);
     } t[] = {
-        {"dotprod", "+dotprod", check_dotprod},
-        {"i8mm",    "+i8mm",    check_i8mm},
-        {"sve",     "+sve",     check_sve},
-        {"sve2",    "+sve2",    check_sve2},
-        {"sme",     "+sme",     check_sme},
+        {"+dotprod", check_dotprod},
+        {"+i8mm",    check_i8mm   },
+        {"+sve",     check_sve    },
+        {"+sve2",    check_sve2   },
+        {"+sme",     check_sme    },
     };
     size_t count = sizeof(t) / sizeof(t[0]);
 
