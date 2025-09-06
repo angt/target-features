@@ -13,9 +13,9 @@ check_avx2(void) {
     asm volatile("vpaddd %%ymm0, %%ymm1, %%ymm2" ::: "ymm0", "ymm1", "ymm2");
 }
 
-void __attribute__((target("fma")))
-check_fma(void) {
-    asm volatile("vfmadd231ps %%ymm0, %%ymm1, %%ymm2" ::: "ymm0", "ymm1", "ymm2");
+void __attribute__((target("bmi2")))
+check_bmi2(void) {
+    asm volatile("pext %%rax, %%rbx, %%rcx" ::: "rax", "rbx", "rcx");
 }
 
 void __attribute__((target("evex512,avx512f")))
@@ -26,6 +26,11 @@ check_avx512f(void) {
 void __attribute__((target("evex512,avx512vnni")))
 check_avx512_vnni(void) {
     asm volatile("vpdpbusd %%zmm0, %%zmm1, %%zmm2" ::: "zmm0", "zmm1", "zmm2");
+}
+
+void __attribute__((target("evex512,avx512bf16")))
+check_avx512_bf16(void) {
+    asm volatile("vdpbf16ps %%zmm0, %%zmm1, %%zmm2" ::: "zmm0", "zmm1", "zmm2");
 }
 
 static sigjmp_buf jmp;
@@ -51,9 +56,10 @@ main(int argc, char *argv[])
     } t[] = {
         {"+avx",        check_avx        },
         {"+avx2",       check_avx2       },
-        {"+fma",        check_fma        },
+        {"+bmi2",       check_bmi2       },
         {"+avx512f",    check_avx512f    },
         {"+avx512vnni", check_avx512_vnni},
+        {"+avx512bf16", check_avx512_bf16},
     };
     size_t count = sizeof(t) / sizeof(t[0]);
 
