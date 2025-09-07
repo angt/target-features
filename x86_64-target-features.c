@@ -28,6 +28,11 @@ check_avx512_vnni(void) {
     asm volatile("vpdpbusd %%zmm0, %%zmm1, %%zmm2" ::: "zmm0", "zmm1", "zmm2");
 }
 
+void __attribute__((target("evex512,avx512vbmi")))
+check_avx512_vbmi(void) {
+    asm volatile("vpermb %%zmm0, %%zmm1, %%zmm2" ::: "zmm0", "zmm1", "zmm2");
+}
+
 void __attribute__((target("evex512,avx512bf16")))
 check_avx512_bf16(void) {
     asm volatile("vdpbf16ps %%zmm0, %%zmm1, %%zmm2" ::: "zmm0", "zmm1", "zmm2");
@@ -59,6 +64,7 @@ main(int argc, char *argv[])
         {"+bmi2",       check_bmi2       },
         {"+avx512f",    check_avx512f    },
         {"+avx512vnni", check_avx512_vnni},
+        {"+avx512vbmi", check_avx512_vbmi},
         {"+avx512bf16", check_avx512_bf16},
     };
     size_t count = sizeof(t) / sizeof(t[0]);
