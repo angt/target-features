@@ -3,6 +3,12 @@
 #include <signal.h>
 #include <setjmp.h>
 
+#ifdef __linux__
+#include <unistd.h>
+#include <sys/syscall.h>
+#include <asm/prctl.h>
+#endif
+
 void __attribute__((target("avx")))
 check_avx(void) {
     asm volatile("vaddps %%ymm0, %%ymm1, %%ymm2" ::: "ymm0", "ymm1", "ymm2");
@@ -38,6 +44,47 @@ check_avx512_bf16(void) {
     asm volatile("vdpbf16ps %%zmm0, %%zmm1, %%zmm2" ::: "zmm0", "zmm1", "zmm2");
 }
 
+static const unsigned char
+__attribute__((aligned(64)))
+amx_cfg[64] = {
+    [ 0] =  1,
+    [16] = 64,
+    [18] = 64,
+    [20] = 64,
+    [48] = 16,
+    [49] = 16,
+    [50] = 16,
+};
+
+void __attribute__((target("amx-tile")))
+check_amx_tile(void) {
+    asm volatile(
+        "ldtilecfg %0\n\t"
+        "tilerelease\n\t"
+        :: "m"(amx_cfg) : "memory", "tmm2"
+    );
+}
+
+void __attribute__((target("amx-int8")))
+check_amx_int8(void) {
+    asm volatile(
+        "ldtilecfg %0\n\t"
+        "tdpbssd %%tmm0, %%tmm1, %%tmm2\n\t"
+        "tilerelease\n\t"
+        :: "m"(amx_cfg) : "memory", "tmm0", "tmm1", "tmm2"
+    );
+}
+
+void __attribute__((target("amx-bf16")))
+check_amx_bf16(void) {
+    asm volatile(
+        "ldtilecfg %0\n\t"
+        "tdpbf16ps %%tmm0, %%tmm1, %%tmm2\n\t"
+        "tilerelease\n\t"
+        :: "m"(amx_cfg) : "memory", "tmm0", "tmm1", "tmm2"
+    );
+}
+
 static sigjmp_buf jmp;
 
 static void
@@ -50,6 +97,10 @@ handler(int sig)
 int
 main(int argc, char *argv[])
 {
+#ifdef __linux__
+    syscall(SYS_arch_prctl, ARCH_REQ_XCOMP_PERM, 18);
+#endif
+
     struct sigaction sa = {
         .sa_handler = handler
     };
@@ -66,6 +117,9 @@ main(int argc, char *argv[])
         {"+avx512vnni", check_avx512_vnni},
         {"+avx512vbmi", check_avx512_vbmi},
         {"+avx512bf16", check_avx512_bf16},
+        {"+amx-tile",   check_amx_tile   },
+        {"+amx-int8",   check_amx_int8   },
+        {"+amx-bf16",   check_amx_bf16   },
     };
     size_t count = sizeof(t) / sizeof(t[0]);
 
