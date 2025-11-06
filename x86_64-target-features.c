@@ -110,23 +110,23 @@ main(int argc, char *argv[])
         const char *target;
         void (*fn)(void);
     } t[] = {
-        {"+avx",        check_avx        },
-        {"+avx2",       check_avx2       },
-        {"+bmi2",       check_bmi2       },
-        {"+avx512f",    check_avx512f    },
-        {"+avx512vnni", check_avx512_vnni},
-        {"+avx512vbmi", check_avx512_vbmi},
-        {"+avx512bf16", check_avx512_bf16},
-        {"+amx-tile",   check_amx_tile   },
-        {"+amx-int8",   check_amx_int8   },
-        {"+amx-bf16",   check_amx_bf16   },
+        {"avx",        check_avx        },
+        {"avx2",       check_avx2       },
+        {"bmi2",       check_bmi2       },
+        {"avx512f",    check_avx512f    },
+        {"avx512vnni", check_avx512_vnni},
+        {"avx512vbmi", check_avx512_vbmi},
+        {"avx512bf16", check_avx512_bf16},
+        {"amx-tile",   check_amx_tile   },
+        {"amx-int8",   check_amx_int8   },
+        {"amx-bf16",   check_amx_bf16   },
     };
     size_t count = sizeof(t) / sizeof(t[0]);
 
     for (size_t i = 0; i < count; i++) {
         if (sigsetjmp(jmp, 1) == 0) {
             t[i].fn();
-            printf("%s", t[i].target);
+            printf("~%s", t[i].target);
         }
     }
     printf("\n");

@@ -49,18 +49,18 @@ main(int argc, char *argv[])
         const char *target;
         void (*fn)(void);
     } t[] = {
-        {"+dotprod", check_dotprod},
-        {"+i8mm",    check_i8mm   },
-        {"+sve",     check_sve    },
-        {"+sve2",    check_sve2   },
-        {"+sme",     check_sme    },
+        {"dotprod", check_dotprod},
+        {"i8mm",    check_i8mm   },
+        {"sve",     check_sve    },
+        {"sve2",    check_sve2   },
+        {"sme",     check_sme    },
     };
     size_t count = sizeof(t) / sizeof(t[0]);
 
     for (size_t i = 0; i < count; i++) {
         if (sigsetjmp(jmp, 1) == 0) {
             t[i].fn();
-            printf("%s", t[i].target);
+            printf("~%s", t[i].target);
         }
     }
     printf("\n");
