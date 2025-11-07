@@ -97,6 +97,8 @@ handler(int sig)
 int
 main(int argc, char *argv[])
 {
+    const char *prefix = argc == 2 ? argv[1] : "~";
+
 #ifdef __linux__
     syscall(SYS_arch_prctl, ARCH_REQ_XCOMP_PERM, 18);
 #endif
@@ -126,7 +128,7 @@ main(int argc, char *argv[])
     for (size_t i = 0; i < count; i++) {
         if (sigsetjmp(jmp, 1) == 0) {
             t[i].fn();
-            printf("~%s", t[i].target);
+            printf("%s%s", prefix, t[i].target);
         }
     }
     printf("\n");

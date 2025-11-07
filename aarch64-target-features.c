@@ -40,6 +40,8 @@ handler(int sig)
 int
 main(int argc, char *argv[])
 {
+    const char *prefix = argc == 2 ? argv[1] : "~";
+
     struct sigaction sa = {
         .sa_handler = handler
     };
@@ -60,7 +62,7 @@ main(int argc, char *argv[])
     for (size_t i = 0; i < count; i++) {
         if (sigsetjmp(jmp, 1) == 0) {
             t[i].fn();
-            printf("~%s", t[i].target);
+            printf("%s%s", prefix, t[i].target);
         }
     }
     printf("\n");
