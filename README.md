@@ -1,2 +1,1 @@
-# target-features
-Show target's features for real, no joking
+now [featcode](https://github.com/angt/featcode)
